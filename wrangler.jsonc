@@ -1,0 +1,43 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "cf-nodezen",
+	"account_id": "26c1cce197f8359600f9ba046f3cd32a",
+	"compatibility_date": "2026-10-28",
+	"compatibility_flags": ["nodejs_compat"],
+
+	// Deploys the vinext Cloudflare Build Output. `npm run deploy` builds with
+	// Vite, then scripts/prepare-deploy.mjs stages the output under `.deploy/`
+	// (wrangler refuses to run while `.cloudflare/output` exists).
+	// The bundle is a multi-module Worker: upload every .js module as-is,
+	// preserving file names so runtime dynamic imports resolve.
+	"main": ".deploy/v0/workers/default/bundle/index.js",
+	"no_bundle": true,
+	"find_additional_modules": true,
+	"base_dir": ".deploy/v0/workers/default/bundle",
+	"preserve_file_names": true,
+	"rules": [{ "type": "ESModule", "globs": ["**/*.js"] }],
+
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".deploy/v0/workers/default/assets",
+		"html_handling": "none",
+		"not_found_handling": "none",
+		"run_worker_first": ["/*", "!/_next/static/*", "!/*/_next/static/*"]
+	},
+
+	"images": { "binding": "IMAGES" },
+
+	// WebRTC signaling room (one Durable Object per room).
+	"durable_objects": {
+		"bindings": [{ "name": "NODEZEN_ROOM", "class_name": "NodeZenRoom" }]
+	},
+	"migrations": [{ "tag": "v1", "new_sqlite_classes": ["NodeZenRoom"] }],
+
+	// Secrets (TURN_KEY_ID / TURN_API_TOKEN) are uploaded at deploy time via
+	// `wrangler deploy --secrets-file` or `wrangler secret put`, and inherited
+	// by later deployments. See .dev.vars.example.
+
+	"routes": [{ "pattern": "nodezen.manalejandro.com", "custom_domain": true }],
+
+	"observability": { "enabled": false }
+}

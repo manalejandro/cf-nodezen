@@ -1,0 +1,9 @@
+# Local development variables. Copy to `.dev.vars` (gitignored) to use.
+#
+# Optional Cloudflare Realtime TURN credentials — used by /api/turn to vend
+# short-lived ICE credentials so peers behind symmetric NATs can establish
+# WebRTC data channels. Leave unset to fall back to STUN-only.
+#
+# Create a TURN key: Cloudflare Dashboard → Realtime → TURN → Create key.
+TURN_KEY_ID=""
+TURN_API_TOKEN=""
